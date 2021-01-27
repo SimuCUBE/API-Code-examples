@@ -23,7 +23,7 @@ https://granitedevices.com/legal
 #include "strings.h"
 #include <windows.h>
 #include "hidapi.h"
-#include "../../Inc/config_comm_defines.h"
+#include "config_comm_defines.h"
 
 hid_device *simucubehandle;
 #define gdusbvid 0x16d0
