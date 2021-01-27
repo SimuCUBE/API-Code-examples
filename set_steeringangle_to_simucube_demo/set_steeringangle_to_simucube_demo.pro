@@ -9,6 +9,6 @@ SOURCES += \
 
 HEADERS += \
     hidapi.h \
-    ../../Inc/config_comm_defines.h
+    config_comm_defines.h
 
 LIBS += -lSetupAPI
