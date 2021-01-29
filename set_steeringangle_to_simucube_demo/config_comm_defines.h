@@ -276,7 +276,7 @@
 #include "cHardwareConfig.h"
 #include "cProfileConfig.h"
 #endif
-#include "types.h"
+#include <sys/types.h>
 
 /* Version number indexes */
 #define majorVersionIdx 0
@@ -595,6 +595,9 @@ typedef struct
 #ifdef WIN32
 #pragma pack(push, 1)
 #endif
+
+// definition for SystemStatus is missing
+#if 0
 typedef struct
 	{ // status reply
 	uint8_t reportID;					//1
@@ -625,6 +628,8 @@ typedef struct
 	uint8_t pad2;					    //55
 	uint8_t pad3;					    //56
 	} __attribute__((packed)) statusReplyPacket;
+#endif
+
 #ifdef WIN32
 #pragma pack(pop)
 #endif

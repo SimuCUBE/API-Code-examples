@@ -17,43 +17,40 @@ https://granitedevices.com/legal
 #include <wchar.h>
 
 #include <stdlib.h>
-#include "stdint.h"
-#include "inttypes.h"
+#include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
-#include "strings.h"
+#include <strings.h>
+#include <unistd.h>
 #include <windows.h>
+
 #include "hidapi.h"
 #include "config_comm_defines.h"
 
 hid_device *simucubehandle;
 #define gdusbvid 0x16d0
 
-/*
-Simucube 1:
-#define simucubepid 0x0d5a
+// Simucube 1:
+#define simucube1pid 0x0d5a
+// Simucube 2 Sport:
+#define simucube2Spid 0x0d61
+// Simucube 2 Pro:
+#define simucube2Ppid 0x0d60
+// Simucube 2 Ultimate:
+#define simucube2Upid 0x0d5f
 
-Simucube 2 Sport:
-#define simucubepid 0x0d61
-
-Simucube 2 Pro:
-#define simucubepid 0x0d60
-
-Simucube 2 Ultimate:
-#define simucubepid 0x0d5f
-*/
-
-#define simucubepid 0x0d5a
-
-
+const unsigned short PIDS[] = {simucube1pid, simucube2Spid, simucube2Ppid, simucube2Upid};
+const int PIDS_SIZE = sizeof(PIDS) / sizeof(PIDS[0]);
 
 bool connectSimuCube() {
     hid_exit();
     hid_init();
-    simucubehandle = hid_open(gdusbvid, simucubepid, NULL);
-    if (!simucubehandle) {
-        return false;
+    for (int i = 0; i < PIDS_SIZE; ++i) {
+        simucubehandle = hid_open(gdusbvid, PIDS[i], NULL);
+        if (simucubehandle)
+            return true;
     }
-    return true;
+    return false;
 }
 
 
@@ -107,19 +104,24 @@ int main()
         if(!writeSimucube(transmitbuf)) {
                hid_close(simucubehandle);
                simucubehandle = NULL;
-               printf("failure\r\n");
+               printf("Command failed.\n");
                return 0;
         }
         //success
-        printf("command sent successfully.\r\n");
+        printf("Command sent successfully. Wheel set to: %d degrees.\n", lockToLockDegrees);
     }
 
-
+    int time = 10;
+    printf("The wheel rotation will be reverted in %d seconds.\n", time);
+    while(time--) {
+        printf(".");
+        sleep(1);
+    }
+    printf("\n");
 
     // Unset the game-settable steering angle.
     // Call this at least on game exit.
     if(connect) {
-
         commandData.reportID = outReport;
         commandData.command = setTemporaryVariable;
         commandData.value=unsetTemporarySteeringAngle;
@@ -129,11 +131,13 @@ int main()
         if(!writeSimucube(transmitbuf)) {
            hid_close(simucubehandle);
            simucubehandle = NULL;
-           printf("failure\r\n");
+           printf("Command failed.\n");
            return 0;
         }
         //success
-        printf("command sent successfully.\r\n");
+        printf("Command sent successfully. Wheel rotation reverted.\n");
     }
+
+    hid_close(simucubehandle);
     return 0;
 }
